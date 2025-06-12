@@ -10,13 +10,16 @@
       background-color: #f3f4f6;
       text-align: center;
     }
-    button {
+    input, button {
       font-size: 18px;
-      padding: 10px 20px;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    button {
       background-color: #22c55e;
       border: none;
       color: white;
-      border-radius: 8px;
       cursor: pointer;
     }
     #loader {
@@ -28,24 +31,28 @@
 <body>
   <h2>📍 เช็คอินพร้อมพิกัด</h2>
 
-  <form id="checkinForm" method="POST" action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSdoMLm3puzD9cyn4chBV_ZYr_47tw3tCauSNkjhwx9GufucMQ/formResponse">
-    <!-- ใส่ชื่อ -->
-    <input type="hidden" name="entry.2008705311" value="ชื่อจากผู้ใช้ (อัตโนมัติหรือ preset ได้)">
+  <form id="checkinForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSdoMLm3puzD9cyn4chBV_ZYr_47tw3tCauSNkjhwx9GufucMQ/formResponse">
+    
+    <label>
+      ใส่ชื่อ:
+      <input type="text" name="entry.2008705311" id="username" required>
+    </label>
 
-    <!-- ใส่การกระทำ เช่น เช็คอิน -->
     <input type="hidden" name="entry.166481329" value="เช็คอิน">
-
-    <!-- พิกัด -->
     <input type="hidden" name="entry.147050432" id="location">
+
+    <button type="button" onclick="sendToForm()">✅ เช็คอินตอนนี้</button>
+    <div id="loader" style="display:none;">📡 กำลังรับพิกัด...</div>
   </form>
 
-  <button onclick="sendToForm()">✅ เช็คอินตอนนี้</button>
-  <div id="loader">รอการยืนยันพิกัด...</div>
-
   <script>
-    document.getElementById('loader').style.display = 'none';
-
     function sendToForm() {
+      const name = document.getElementById('username').value.trim();
+      if (!name) {
+        alert("กรุณากรอกชื่อก่อนเช็คอิน");
+        return;
+      }
+
       document.getElementById('loader').style.display = 'block';
       navigator.geolocation.getCurrentPosition(
         function(pos) {
@@ -55,7 +62,7 @@
           document.getElementById('checkinForm').submit();
         },
         function(err) {
-          alert('❌ ไม่สามารถดึงตำแหน่งที่ตั้ง: ' + err.message);
+          alert('❌ ไม่สามารถดึงตำแหน่ง: ' + err.message);
           document.getElementById('loader').style.display = 'none';
         },
         { enableHighAccuracy: true, timeout: 10000 }
