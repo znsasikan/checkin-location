@@ -1,72 +1,56 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>เช็คอินพร้อมพิกัด</title>
+  <title>Check-in พร้อมพิกัด</title>
   <style>
     body {
       font-family: sans-serif;
-      padding: 2em;
-      background-color: #f3f4f6;
       text-align: center;
-    }
-    input, button {
-      font-size: 18px;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
+      margin-top: 100px;
+      background-color: #f5f5f5;
     }
     button {
-      background-color: #22c55e;
-      border: none;
+      font-size: 20px;
+      padding: 15px 30px;
+      border-radius: 10px;
+      background-color: #28a745;
       color: white;
+      border: none;
       cursor: pointer;
     }
-    #loader {
-      margin-top: 20px;
-      color: #555;
+    button:hover {
+      background-color: #218838;
+    }
+    h2 {
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <h2>📍 เช็คอินพร้อมพิกัด</h2>
-
-  <form id="checkinForm" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSdoMLm3puzD9cyn4chBV_ZYr_47tw3tCauSNkjhwx9GufucMQ/formResponse">
-    
-    <label>
-      ใส่ชื่อ:
-      <input type="text" name="entry.2008705311" id="username" required>
-    </label>
-
-    <input type="hidden" name="entry.166481329" value="เช็คอิน">
-    <input type="hidden" name="entry.147050432" id="location">
-
-    <button type="button" onclick="sendToForm()">✅ เช็คอินตอนนี้</button>
-    <div id="loader" style="display:none;">📡 กำลังรับพิกัด...</div>
-  </form>
+  <h2>📍 กรุณากดปุ่มเพื่อลงชื่อพร้อมระบุตำแหน่ง</h2>
+  <button onclick="sendToForm()">➡ เปิดฟอร์มพร้อมพิกัด</button>
 
   <script>
     function sendToForm() {
-      const name = document.getElementById('username').value.trim();
-      if (!name) {
-        alert("กรุณากรอกชื่อก่อนเช็คอิน");
-        return;
-      }
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
 
-      document.getElementById('loader').style.display = 'block';
-      navigator.geolocation.getCurrentPosition(
-        function(pos) {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lng = pos.coords.longitude.toFixed(6);
-          document.getElementById('location').value = `${lat},${lng}`;
-          document.getElementById('checkinForm').submit();
-        },
-        function(err) {
-          alert('❌ ไม่สามารถดึงตำแหน่ง: ' + err.message);
-          document.getElementById('loader').style.display = 'none';
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+          // ✅ ฟอร์มของคุณ + ช่องพิกัด
+          const formBaseURL = "https://docs.google.com/forms/d/e/1FAIpQLSdoMLm3puzD9cyn4chBV_ZYr_47tw3tCauSNkjhwx9GufucMQ/viewform";
+          const entryLocation = "entry.147050432";
+
+          const fullURL = `${formBaseURL}?usp=pp_url&${entryLocation}=${lat},${lng}`;
+          window.location.href = fullURL;
+
+        }, function(error) {
+          alert("❌ ไม่สามารถดึงตำแหน่งได้: " + error.message);
+        });
+      } else {
+        alert("❌ เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง");
+      }
     }
   </script>
 </body>
